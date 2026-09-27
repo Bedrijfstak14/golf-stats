@@ -1,0 +1,67 @@
+version: 2
+updates:
+  # npm-packages (package.json / package-lock.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+    groups:
+      # Next.js en React samen updaten
+      nextjs-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "eslint-config-next"
+      # Overige minor- en patch-updates gebundeld in één PR
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Base-image in de Dockerfile (node)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    commit-message:
+      prefix: "docker"
+    labels:
+      - "dependencies"
+      - "docker"
+    ignore:
+      # Node-majors bewust handmatig ophogen
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+
+  # Images in docker-compose.yml (postgres, caddy)
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    commit-message:
+      prefix: "docker"
+    labels:
+      - "dependencies"
+      - "docker"
+    ignore:
+      # Postgres-major vereist een datamigratie
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
