@@ -1,0 +1,74 @@
+name: golf-stats
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        ALLOWED_ORIGINS: ${APP_URL:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://golf:${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}@db:5432/golf
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      APP_URL: ${APP_URL:-http://localhost:3470}
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      # Standaard bereikbaar op het netwerk; zet APP_BIND=127.0.0.1 als alleen een reverse proxy erbij mag
+      - "${APP_BIND:-0.0.0.0}:${APP_PORT:-3470}:3000"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: golf
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: golf
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U golf -d golf"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: golf
+      PGPASSWORD: ${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}
+      PGDATABASE: golf
+      KEEP_DAYS: "30"
+    volumes:
+      - ./scripts/backup.sh:/backup.sh:ro
+      - uploads:/data/uploads:ro
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "/backup.sh"]
+
+  # Optioneel: `docker compose --profile proxy up -d` als er nog geen reverse proxy draait
+  proxy:
+    image: caddy:2-alpine
+    profiles: ["proxy"]
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
