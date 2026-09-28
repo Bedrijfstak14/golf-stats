@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Section from "@/components/Section";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -12,6 +13,7 @@ import { fmtDate, fmtIndex, fmtNum, fmtPct, fmtToPar, SOURCE_LABELS } from "@/li
 import Scorecard from "@/components/Scorecard";
 import { DistributionBar, DivergingBars } from "@/components/charts";
 import { deleteRound, setRoundVisibility } from "@/app/actions";
+import Tip, { Term } from "@/components/Tip";
 
 export const dynamic = "force-dynamic";
 
@@ -53,26 +55,38 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
 
       <div className="grid grid-3 grid-md-5" style={{ marginBottom: 12 }}>
         <div className="kpi">
-          <div className="label">Bruto</div>
+          <div className="label">
+            <Term k="gross">Bruto</Term>
+          </div>
           <div className="value">{s.gross}</div>
           <div className="small muted">{fmtToPar(s.toPar)}</div>
         </div>
         <div className="kpi">
-          <div className="label">Punten</div>
+          <div className="label">
+            <Term k="points">Punten</Term>
+          </div>
           <div className="value">{s.points}</div>
         </div>
         <div className="kpi">
-          <div className="label">Netto</div>
+          <div className="label">
+            <Term k="net">Netto</Term>
+          </div>
           <div className="value">{s.net ?? "–"}</div>
-          <div className="small muted">PH {round.playingHandicap ?? "–"}</div>
+          <div className="small muted">
+            <Term k="ph">PH</Term> {round.playingHandicap ?? "–"}
+          </div>
         </div>
         <div className="kpi">
-          <div className="label">Putts</div>
+          <div className="label">
+            <Term k="putts">Putts</Term>
+          </div>
           <div className="value">{s.putts}</div>
           <div className="small muted">{fmtNum(s.puttsPerGir, 2)} per GIR</div>
         </div>
         <div className="kpi">
-          <div className="label">Differential</div>
+          <div className="label">
+            <Term k="differential">Differential</Term>
+          </div>
           <div className="value">{w?.adjustedDifferential != null ? fmtNum(w.adjustedDifferential) : "–"}</div>
           <div className="small muted">{w?.counted ? (inBest ? "telt mee (beste)" : "buiten beste") : (w?.reason ?? "")}</div>
         </div>
@@ -80,35 +94,42 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
 
       {note && <div className="alert note">Opvallend: {note}</div>}
 
-      <div className="card">
+      <Section id="round-card" title="Scorekaart" wide>
         <Scorecard round={round} />
-      </div>
+      </Section>
 
       <div className="grid grid-md-2">
-        <div className="card">
-          <h2>Statistieken</h2>
+        <Section id="round-stats" title="Statistieken">
           <table className="t">
             <tbody>
               <tr>
-                <td>Fairways</td>
+                <td>
+                  <Term k="fairwayPct">Fairways</Term>
+                </td>
                 <td className="num">
                   {s.fairways.hits}/{s.fairways.of} ({fmtPct(s.fairwayPct)})
                 </td>
               </tr>
               <tr>
-                <td>Gemist links / rechts / kort / lang</td>
+                <td>
+                  <Term k="fairwayMiss">Gemist links / rechts / kort / lang</Term>
+                </td>
                 <td className="num">
                   {s.fairways.left} / {s.fairways.right} / {s.fairways.short} / {s.fairways.long}
                 </td>
               </tr>
               <tr>
-                <td>GIR</td>
+                <td>
+                  <Term k="girPct">GIR</Term>
+                </td>
                 <td className="num">
                   {s.gir.hits}/{s.gir.of} ({fmtPct(s.girPct)})
                 </td>
               </tr>
               <tr>
-                <td>Scrambling</td>
+                <td>
+                  <Term k="scramblingPct">Scrambling</Term>
+                </td>
                 <td className="num">
                   {s.scrambling.success}/{s.scrambling.of} ({fmtPct(s.scramblingPct)})
                 </td>
@@ -118,51 +139,62 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
                 <td className="num">{fmtNum(s.puttsPerHole, 2)}</td>
               </tr>
               <tr>
-                <td>3-putts</td>
+                <td>
+                  <Term k="threePutts">3-putts</Term>
+                </td>
                 <td className="num">{s.threePutts}</td>
               </tr>
               <tr>
-                <td>Strafslagen / bunkerslagen</td>
+                <td>
+                  <Term text="Strafslagen (water, out of bounds, onspeelbaar) en slagen vanuit een bunker.">Strafslagen / bunkerslagen</Term>
+                </td>
                 <td className="num">
                   {s.penalties} / {s.bunker}
                 </td>
               </tr>
               {s.front != null && (
                 <tr>
-                  <td>Uit / in</td>
+                  <td>
+                      <Term k="frontBack">Uit / in</Term>
+                    </td>
                   <td className="num">
                     {s.front} / {s.back}
                   </td>
                 </tr>
               )}
               <tr>
-                <td>Handicap (index / CH / PH)</td>
+                <td>
+                  <Term k="hcpTriple">Handicap (index / CH / PH)</Term>
+                </td>
                 <td className="num">
                   {fmtIndex(round.handicapIndex)} / {round.courseHandicap ?? "–"} / {round.playingHandicap ?? "–"}
                 </td>
               </tr>
               <tr>
-                <td>CR / slope</td>
+                <td>
+                  <Term text="Course rating en slope van de tee waarop je speelde. Samen bepalen ze je course handicap en differential.">CR / slope</Term>
+                </td>
                 <td className="num">
                   {round.courseRating != null ? fmtNum(round.courseRating) : "–"} / {round.slope ?? "–"}
                 </td>
               </tr>
             </tbody>
           </table>
-          <h3 style={{ marginTop: 16 }}>Scoreverdeling</h3>
+          <h3 style={{ marginTop: 16 }}>
+            <Term k="distribution">Scoreverdeling</Term>
+          </h3>
           <DistributionBar dist={s.distribution} />
-        </div>
+        </Section>
 
-        <div className="card">
-          <h2>Strokes gained</h2>
+        <Section id="round-sg" title="Strokes gained" tip="sg">
           {sg ? (
             <>
               <p className="small muted">
-                {sgHoles.length} van {round.holesCount} holes met slaginvoer · referentie {baseline}
+                {sgHoles.length} van {round.holesCount} holes met slaginvoer · <Term k="baseline">referentie</Term> {baseline}
               </p>
               <DivergingBars rows={(Object.keys(SG_LABELS) as SgCategory[]).map((k) => ({ label: SG_LABELS[k], value: sg[k] }))} />
               <p className="small" style={{ marginTop: 8 }}>
-                Totaal: <strong>{fmtNum(sg.total, 2)}</strong>
+                <Term k="sgTotal">Totaal</Term>: <strong>{fmtNum(sg.total, 2)}</strong>
               </p>
             </>
           ) : (
@@ -173,7 +205,7 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
               Slagen invoeren
             </Link>
           )}
-        </div>
+        </Section>
       </div>
 
       {imgs.some((i) => i.images.length) && (
@@ -188,23 +220,28 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
       )}
 
       {round.notes && (
-        <div className="card">
-          <h3>Notitie</h3>
+        <Section id="round-notes" title="Notitie">
           <p>{round.notes}</p>
-        </div>
+        </Section>
       )}
 
       {mine && (
-        <div className="card">
+        <Section id="round-manage" title="Beheer">
           <div className="small muted" style={{ marginBottom: 8 }}>
-            Bron: {SOURCE_LABELS[round.source] ?? round.source}
-            {!round.qualifying && " · niet qualifying"}
+            <Term k="source">Bron</Term>: {SOURCE_LABELS[round.source] ?? round.source}
+            {!round.qualifying && (
+              <>
+                {" · "}
+                <Term k="qualifying">niet qualifying</Term>
+              </>
+            )}
           </div>
           <div className="row">
             <Link className="btn" href={`/rounds/${round.id}/edit`}>
               Bewerken
             </Link>
             <form action={setRoundVisibility} className="row">
+              <Tip k="visibility" label="Zichtbaarheid" />
               <input type="hidden" name="id" value={round.id} />
               <select name="visibility" defaultValue={round.visibility} aria-label="Zichtbaarheid" style={{ width: "auto" }}>
                 <option value="default">Delen: volgens instelling</option>
@@ -218,7 +255,7 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
               <button className="btn danger">Verwijderen</button>
             </form>
           </div>
-        </div>
+        </Section>
       )}
     </>
   );

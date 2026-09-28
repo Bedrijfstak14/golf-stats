@@ -10,6 +10,8 @@ export interface AiCard {
   teeGender: "m" | "f" | null;
   holesCount: number | null;
   format: "stableford" | "stroke" | null;
+  /** Hole19: HCP-badge aanwezig */
+  qualifying?: boolean | null;
   holes: { hole: number; par: number | null; si: number | null; length: number | null }[];
   courseTotals?: { par: number | null; length: number | null } | null;
   players: {
@@ -131,7 +133,7 @@ export function aiCardToDraft(card: AiCard, playerIndex = 0, source: Source = "a
       bunker: t?.bunker ?? null,
     },
     lowConfidence,
-    qualifying: true,
+    qualifying: card.qualifying ?? true,
     pcc: 0,
   };
 }

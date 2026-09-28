@@ -247,3 +247,12 @@ describe("handicap uit de eigen database", () => {
     expect(handicapForRound(20, { courseRating: 72, slope: 113, par: 72 }, 18, 90).playingHandicap).toBe(18);
   });
 });
+
+describe("records", () => {
+  it("minste putts alleen uit rondes met volledig bijgehouden putts", () => {
+    const d = acceptanceDraft();
+    const full = { id: 1, date: d.date, courseLabel: "X", holesCount: 9, par: 35, playingHandicap: 23, holes: d.holes };
+    const partial = { ...full, id: 2, holes: d.holes.map((h, i) => ({ ...h, putts: i === 0 ? 1 : null })) };
+    expect(records([full, partial])[0].fewestPutts?.roundId).toBe(1);
+  });
+});
