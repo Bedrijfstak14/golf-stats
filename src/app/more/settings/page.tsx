@@ -3,9 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { updateSettings } from "@/app/actions";
 import { num } from "@/db";
 import ActionForm from "@/components/ActionForm";
+import { Term } from "@/components/Tip";
 import { BASELINES } from "@/lib/golf/strokesGained";
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ imported?: string; error?: string }> }) {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ imported?: string; error?: string; recalc?: string }> }) {
   const user = await requireUser();
   const sp = await searchParams;
   const dec = (v: string | null) => (num(v) == null ? "" : String(num(v)).replace(".", ","));
@@ -26,7 +27,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <input name="name" defaultValue={user.name} />
             </label>
             <label className="field">
-              <span>Geslacht (voor tees)</span>
+              <span>
+                <Term k="gender">Geslacht (voor tees)</Term>
+              </span>
               <select name="gender" defaultValue={user.gender}>
                 <option value="m">Heer</option>
                 <option value="f">Dame</option>
@@ -36,29 +39,39 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <h2>Handicap</h2>
           <div className="grid grid-2 grid-md-3">
             <label className="field">
-              <span>Officiële NGF-index</span>
+              <span>
+                <Term k="official">Officiële NGF-index</Term>
+              </span>
               <input name="officialIndex" inputMode="decimal" defaultValue={dec(user.officialIndex)} />
             </label>
             <label className="field">
-              <span>Startindex (tot 3 rondes)</span>
+              <span>
+                <Term k="startIndex">Startindex (tot 3 rondes)</Term>
+              </span>
               <input name="startIndex" inputMode="decimal" defaultValue={dec(user.startIndex)} placeholder="standaard: officiële index" />
             </label>
             <label className="field">
-              <span>Allowance playing hcp (%)</span>
+              <span>
+                <Term k="allowance">Allowance playing hcp (%)</Term>
+              </span>
               <input name="allowance" inputMode="numeric" defaultValue={user.allowance} />
             </label>
           </div>
           <h2>Eenheden en strokes gained</h2>
           <div className="grid grid-2">
             <label className="field">
-              <span>Putt-afstand</span>
+              <span>
+                <Term k="puttUnit">Putt-afstand</Term>
+              </span>
               <select name="puttUnit" defaultValue={user.puttUnit}>
                 <option value="m">Meters</option>
                 <option value="ft">Voeten</option>
               </select>
             </label>
             <label className="field">
-              <span>Referentieniveau SG</span>
+              <span>
+                <Term k="baseline">Referentieniveau SG</Term>
+              </span>
               <select name="sgBaseline" defaultValue={user.sgBaseline}>
                 {Object.entries(BASELINES).map(([k, b]) => (
                   <option key={k} value={k}>
@@ -70,7 +83,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </div>
           <h2>Delen</h2>
           <label className="field">
-            <span>Mijn rondes en statistieken</span>
+            <span>
+              <Term k="sharing">Mijn rondes en statistieken</Term>
+            </span>
             <select name="sharing" defaultValue={user.sharing}>
               <option value="private">Privé</option>
               <option value="friends">Gedeeld met vrienden</option>
@@ -84,6 +99,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </label>
         </ActionForm>
       </div>
+
+      {user.role !== "viewer" && (
+        <div className="card" id="recalc">
+          <h2>
+            <Term k="recalc">Handicap herberekenen</Term>
+          </h2>
+          {sp.recalc && <div className="alert ok">Handicap en punten van alle rondes zijn opnieuw berekend.</div>}
+          <p className="small muted">
+            Gebeurt normaal automatisch. Gebruik dit na een correctie buiten de app om, bijvoorbeeld van rating of slope.
+          </p>
+          <form action="/api/admin/recalc" method="post">
+            <input type="hidden" name="back" value="/more/settings" />
+            <button className="btn">Alles herberekenen</button>
+          </form>
+        </div>
+      )}
 
       <div className="card" id="export">
         <h2>Export</h2>

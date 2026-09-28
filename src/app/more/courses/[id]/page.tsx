@@ -6,6 +6,7 @@ import { clubs, combinations, holes, loops, tees } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { deleteClub, deleteCombination, deleteLoop, deleteTee, saveClub, saveCombination, saveLoop, saveTee } from "@/app/actions";
 import ActionForm from "@/components/ActionForm";
+import { Term } from "@/components/Tip";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,9 @@ export default async function ClubPage({ params }: { params: Promise<{ id: strin
         )}
       </details>
 
-      <h2>Lussen</h2>
+      <h2>
+        <Term k="loop">Lussen</Term>
+      </h2>
       {lp.map((l) => {
         const lh = hs.filter((h) => h.loopId === l.id);
         return (
@@ -93,7 +96,9 @@ export default async function ClubPage({ params }: { params: Promise<{ id: strin
         <LoopForm clubId={id} />
       </details>
 
-      <h2>18-holescombinaties</h2>
+      <h2>
+        <Term k="combination">18-holescombinaties</Term>
+      </h2>
       <p className="small muted">Een combinatie van twee lussen met eigen stroke index, rating en slope.</p>
       {cb.map((c) => {
         const lh = [...hs.filter((h) => h.loopId === c.firstLoopId), ...hs.filter((h) => h.loopId === c.secondLoopId)];
@@ -162,8 +167,12 @@ function LoopForm({ clubId, loop, holes: hs = [] }: { clubId: number; loop?: typ
           <thead>
             <tr>
               <th>Hole</th>
-              <th>Par</th>
-              <th>SI</th>
+              <th>
+                <Term k="par">Par</Term>
+              </th>
+              <th>
+                <Term k="si">SI</Term>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -209,7 +218,9 @@ function CombinationForm({
           <input name="name" defaultValue={combination?.name} placeholder="Oost + West" />
         </label>
         <label className="field">
-          <span>Eerste negen</span>
+          <span>
+            <Term text="De lus die je als holes 1–9 speelt.">Eerste negen</Term>
+          </span>
           <select name="firstLoopId" defaultValue={first}>
             {lp.map((l) => (
               <option key={l.id} value={l.id}>
@@ -219,7 +230,9 @@ function CombinationForm({
           </select>
         </label>
         <label className="field">
-          <span>Tweede negen</span>
+          <span>
+            <Term text="De lus die je als holes 10–18 speelt.">Tweede negen</Term>
+          </span>
           <select name="secondLoopId" defaultValue={second}>
             {lp.map((l) => (
               <option key={l.id} value={l.id}>
@@ -277,7 +290,9 @@ function TeeSection({
 }) {
   return (
     <div style={{ marginTop: 12 }}>
-      <h3>Tees</h3>
+      <h3>
+        <Term k="tee">Tees</Term>
+      </h3>
       {list.length === 0 && <p className="small muted">Nog geen tees.</p>}
       {list.map((t) => (
         <details key={t.id} className="hole-card">
@@ -332,11 +347,15 @@ function TeeForm({
       {tee && <input type="hidden" name="id" value={tee.id} />}
       <div className="grid grid-2 grid-md-3" style={{ marginTop: 12 }}>
         <label className="field">
-          <span>Teekleur</span>
+          <span>
+            <Term k="tee">Teekleur</Term>
+          </span>
           <input name="name" defaultValue={tee?.name ?? ""} placeholder="Blauw" required />
         </label>
         <label className="field">
-          <span>Geslacht</span>
+          <span>
+            <Term k="teeGender">Geslacht</Term>
+          </span>
           <select name="gender" defaultValue={tee?.gender ?? "m"}>
             <option value="m">Heren</option>
             <option value="f">Dames</option>
@@ -347,15 +366,21 @@ function TeeForm({
           <input name="par" inputMode="numeric" defaultValue={tee?.par ?? par} />
         </label>
         <label className="field">
-          <span>Course rating ({holesCount} holes)</span>
+          <span>
+            <Term k="cr">Course rating ({holesCount} holes)</Term>
+          </span>
           <input name="courseRating" inputMode="decimal" defaultValue={num(tee?.courseRating)?.toString().replace(".", ",") ?? ""} placeholder="bijv. 35,2" />
         </label>
         <label className="field">
-          <span>Slope</span>
+          <span>
+            <Term k="slope">Slope</Term>
+          </span>
           <input name="slope" inputMode="numeric" defaultValue={tee?.slope ?? ""} placeholder="bijv. 127" />
         </label>
         <label className="field">
-          <span>Geldig vanaf</span>
+          <span>
+            <Term k="validFrom">Geldig vanaf</Term>
+          </span>
           <input name="validFrom" type="date" defaultValue={tee?.validFrom ?? "2000-01-01"} />
         </label>
       </div>

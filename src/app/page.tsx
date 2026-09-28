@@ -6,6 +6,7 @@ import { insights, keyFigures, roundStats, standout, type StatKey } from "@/lib/
 import { fmtDate, fmtIndex, fmtNum, fmtToPar } from "@/lib/format";
 import { num } from "@/db";
 import { Sparkline } from "@/components/charts";
+import { Term } from "@/components/Tip";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,9 @@ export default async function Dashboard() {
 
       <div className="grid grid-md-2">
         <Link href="/stats?tab=handicap" className="card">
-          <div className="small muted">Handicapindex (indicatief)</div>
+          <div className="small muted">
+            <Term k="index">Handicapindex (indicatief)</Term>
+          </div>
           <div className="row between">
             <div>
               <div className="big num">{fmtIndex(whs.index)}</div>
@@ -82,19 +85,25 @@ export default async function Dashboard() {
               <span className="muted">{fmtToPar(ls.toPar)}</span>
             </span>
             <span className="num">
-              <strong style={{ fontSize: "1.3rem" }}>{ls.points}</strong> <span className="muted">punten</span>
+              <strong style={{ fontSize: "1.3rem" }}>{ls.points}</strong> <span className="muted">
+                <Term k="points">punten</Term>
+              </span>
             </span>
           </div>
           {note && <div className="small" style={{ marginTop: 6 }}>{note}</div>}
         </Link>
       </div>
 
-      <h2 style={{ marginTop: 8 }}>Kerncijfers</h2>
+      <h2 style={{ marginTop: 8 }}>
+        <Term k="keyFigures">Kerncijfers</Term>
+      </h2>
       <p className="small muted">Gemiddelde laatste 5 rondes, genormaliseerd naar 18 holes, t.o.v. de 5 daarvoor.</p>
       <div className="grid grid-2 grid-md-5" style={{ marginBottom: 16 }}>
         {kf.map((k) => (
           <div className="kpi" key={k.key}>
-            <div className="label">{k.label.replace("Bruto score", "Gem. score")}</div>
+            <div className="label">
+              <Term k={k.key}>{k.label.replace("Bruto score", "Gem. score")}</Term>
+            </div>
             <div className="value">
               {k.value == null ? "–" : fmtNum(k.value)}
               {k.key.endsWith("Pct") && k.value != null ? "%" : ""}
@@ -106,7 +115,9 @@ export default async function Dashboard() {
 
       {cards.length > 0 && (
         <>
-          <h2>Inzichten</h2>
+          <h2>
+            <Term k="insights">Inzichten</Term>
+          </h2>
           <div className="grid grid-md-3">
             {cards.map((c) => (
               <Link key={c.id} className="card" href={c.roundIds.length === 1 ? `/rounds/${c.roundIds[0]}` : "/stats?tab=patterns"}>

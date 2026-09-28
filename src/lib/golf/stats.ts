@@ -266,12 +266,22 @@ export function records(rounds: RoundLike[]): CourseRecord[] {
       }
       return best;
     };
+    const pickWhere = (list: RoundLike[], ok: (r: RoundLike) => boolean, f: (s: RoundStats) => number | null) => {
+      let best: CourseRecord["bestGross"] = null;
+      for (const r of list) {
+        if (!ok(r)) continue;
+        const v = f(roundStats(r));
+        if (v != null && (!best || v < best.value)) best = { value: v, roundId: r.id, date: r.date };
+      }
+      return best;
+    };
     return {
       courseLabel,
       holesCount: Number(holes),
       bestGross: pick((s) => s.gross, true),
       mostPoints: pick((s) => s.points, false),
-      fewestPutts: pick((s) => (s.putts > 0 ? s.putts : null), true),
+      // alleen rondes waarin bij elke gespeelde hole putts zijn bijgehouden
+      fewestPutts: pickWhere(rs, (r) => r.holes.every((h) => h.strokes == null || h.putts != null), (st) => (st.putts > 0 ? st.putts : null)),
       rounds: rs.length,
     };
   });

@@ -15,6 +15,7 @@ export const GEMINI_SCHEMA = {
     teeGender: n("STRING", { enum: ["m", "f"] }),
     holesCount: n("INTEGER"),
     format: n("STRING", { enum: ["stableford", "stroke"] }),
+    qualifying: n("BOOLEAN", { description: "true als de kaart een HCP-badge (qualifying ronde) toont" }),
     holes: {
       type: "ARRAY",
       items: {
@@ -91,6 +92,8 @@ Hole19-kaart:
 - De rij met de teekleur (bijv. "Blauw (h)") bevat de lengtes per hole in meters. teeName = kleur zonder haakjes;
   teeGender "f" bij (d) of (v), anders "m".
 - "S. Index" = stroke index per hole.
+- Onder de titel staan badges: "HCP" betekent een qualifying ronde (qualifying = true); ontbreekt de HCP-badge
+  (alleen bijv. "STBFORD" of "NO STATS"), dan qualifying = false.
 - Onder de spelersnaam staat "P.HCP <getal>" = playingHandicap.
 - In de scorerij staat per hole de score groot en de stablefordpunten klein erboven (superscript) → strokes en points.
   Een streepje "-" betekent: hole niet gespeeld → strokes, points, putts null.

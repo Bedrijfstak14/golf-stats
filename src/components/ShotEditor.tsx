@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { holeStrokesGained, quickPutts, SG_LABELS, type BaselineKey } from "@/lib/golf/strokesGained";
 import { LIE_LABELS, type DraftShot, type Lie } from "@/lib/golf/types";
 import { sendJson } from "./offline";
+import Tip, { Term } from "@/components/Tip";
 
 interface HoleIn {
   number: number;
@@ -116,7 +117,7 @@ export default function ShotEditor({
                 {sg[i] ? ` · ${SG_LABELS[sg[i].category]}` : ""}
               </span>
               <span className="num">
-                SG {sg[i] ? (sg[i].sg > 0 ? "+" : "") + sg[i].sg.toFixed(2) : ""}
+                <Tip text="Strokes gained van deze slag: hoeveel beter (+) of slechter (−) dan de referentiespeler vanaf dezelfde plek." label="SG" /> SG {sg[i] ? (sg[i].sg > 0 ? "+" : "") + sg[i].sg.toFixed(2) : ""}
                 <button className="btn sm danger" style={{ marginLeft: 8 }} onClick={() => update(h.shots.filter((_, j) => j !== i))} aria-label="Slag verwijderen">
                   ×
                 </button>
@@ -124,7 +125,9 @@ export default function ShotEditor({
             </div>
             <div className="f-grid">
               <label>
-                <span>Ligging</span>
+                <span>
+                  <Term k="lie">Ligging</Term>
+                </span>
                 <select value={s.lie} onChange={(e) => setShot(i, { lie: e.target.value as Lie })}>
                   {LIES.map((l) => (
                     <option key={l} value={l}>
@@ -134,7 +137,9 @@ export default function ShotEditor({
                 </select>
               </label>
               <label>
-                <span>Tot vlag ({s.lie === "green" ? puttUnit : "m"})</span>
+                <span>
+                  <Term k="toFlag">{`Tot vlag (${s.lie === "green" ? puttUnit : "m"})`}</Term>
+                </span>
                 <input
                   inputMode="decimal"
                   value={toDisplay(s)}

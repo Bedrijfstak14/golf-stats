@@ -1,5 +1,6 @@
 import { scoreClass } from "@/lib/golf/stats";
 import type { LoadedRound } from "@/lib/rounds";
+import { Term } from "@/components/Tip";
 
 const FW_SYMBOL: Record<string, string> = { hit: "●", left: "←", right: "→", short: "↓", long: "↑", na: "" };
 
@@ -24,7 +25,9 @@ export default function Scorecard({ round }: { round: LoadedRound }) {
               </thead>
               <tbody>
                 <tr>
-                  <td>Lengte</td>
+                  <td>
+                    <Term k="length">Lengte</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number} className="small muted">
                       {h.length ?? ""}
@@ -33,14 +36,18 @@ export default function Scorecard({ round }: { round: LoadedRound }) {
                   <td className="tot small">{sum((h) => h.length) || ""}</td>
                 </tr>
                 <tr>
-                  <td>Par</td>
+                  <td>
+                    <Term k="par">Par</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number}>{h.par}</td>
                   ))}
                   <td className="tot">{sum((h) => h.par)}</td>
                 </tr>
                 <tr>
-                  <td>SI</td>
+                  <td>
+                    <Term k="si">SI</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number} className="small muted">
                       {h.si}
@@ -56,21 +63,27 @@ export default function Scorecard({ round }: { round: LoadedRound }) {
                   <td className="tot">{sum((h) => h.strokes)}</td>
                 </tr>
                 <tr>
-                  <td>Punten</td>
+                  <td>
+                    <Term k="points">Punten</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number}>{h.points ?? ""}</td>
                   ))}
                   <td className="tot">{sum((h) => h.points)}</td>
                 </tr>
                 <tr>
-                  <td>Putts</td>
+                  <td>
+                    <Term k="putts">Putts</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number}>{h.putts ?? ""}</td>
                   ))}
                   <td className="tot">{sum((h) => h.putts)}</td>
                 </tr>
                 <tr>
-                  <td>Fairway</td>
+                  <td>
+                    <Term k="fairwayRow">Fairway</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number} aria-label={h.fairway ?? ""} style={{ color: h.fairway === "hit" ? "var(--accent)" : undefined }}>
                       {FW_SYMBOL[h.fairway ?? ""] ?? ""}
@@ -81,7 +94,9 @@ export default function Scorecard({ round }: { round: LoadedRound }) {
                   </td>
                 </tr>
                 <tr>
-                  <td>GIR</td>
+                  <td>
+                    <Term k="girPct">GIR</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number} style={{ color: "var(--accent)" }}>
                       {h.gir ? "✓" : ""}
@@ -90,14 +105,18 @@ export default function Scorecard({ round }: { round: LoadedRound }) {
                   <td className="tot small">{hs.filter((h) => h.gir).length}</td>
                 </tr>
                 <tr>
-                  <td>Straf</td>
+                  <td>
+                    <Term k="penalties">Straf</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number}>{h.penalties || ""}</td>
                   ))}
                   <td className="tot">{sum((h) => h.penalties)}</td>
                 </tr>
                 <tr>
-                  <td>Bunker</td>
+                  <td>
+                    <Term k="bunker">Bunker</Term>
+                  </td>
                   {hs.map((h) => (
                     <td key={h.number}>{h.bunker || ""}</td>
                   ))}

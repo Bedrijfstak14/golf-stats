@@ -7,6 +7,7 @@ import { handicapForRound } from "@/lib/golf/whs";
 import { aiCardToDraft, type AiCard } from "@/lib/golf/aiDraft";
 import { FAIRWAY_LABELS, type CourseHoleRef, type DraftHole, type Fairway, type RoundDraft } from "@/lib/golf/types";
 import { sendJson } from "./offline";
+import { Term } from "@/components/Tip";
 
 /** Serialiseerbare versie van CourseOption (lib/courses) */
 export interface EditorCourseOption {
@@ -374,29 +375,39 @@ export default function RoundEditor(props: {
               </>
             )}
             <label className="field">
-              <span>Course rating</span>
+              <span>
+                <Term k="cr">Course rating</Term>
+              </span>
               <input inputMode="decimal" value={draft.courseRating ?? ""} onChange={(e) => set("courseRating", num(e.target.value))} placeholder="bijv. 35,4" />
             </label>
             <label className="field">
-              <span>Slope</span>
+              <span>
+                <Term k="slope">Slope</Term>
+              </span>
               <input inputMode="numeric" value={draft.slope ?? ""} onChange={(e) => set("slope", num(e.target.value))} placeholder="bijv. 128" />
             </label>
           </div>
 
           <div className="grid grid-2 grid-md-3" style={{ marginBottom: 8 }}>
             <div className="kpi">
-              <div className="label">Index (eigen database)</div>
+              <div className="label">
+                <Term k="indexFromDb">Index (eigen database)</Term>
+              </div>
               <div className="value">{props.currentIndex != null ? props.currentIndex.toLocaleString("nl-NL") : "–"}</div>
             </div>
             <div className="kpi">
-              <div className="label">Course / playing hcp</div>
+              <div className="label">
+                <Term text="Course handicap: slagen op deze baan en tee (index × slope ÷ 113 + CR − par). Playing handicap: course handicap × allowance; hiermee worden je punten berekend.">Course / playing hcp</Term>
+              </div>
               <div className="value">
                 {appHcp ? `${appHcp.courseHandicap} / ${appHcp.playingHandicap}` : "–"}
               </div>
             </div>
             {mode === "import" && (
               <label className={`field ${cls("playingHandicap")}`}>
-                <span>P.HCP op kaart (alleen ter controle)</span>
+                <span>
+                  <Term k="cardPh">P.HCP op kaart (alleen ter controle)</Term>
+                </span>
                 <input inputMode="numeric" value={draft.playingHandicap ?? ""} onChange={(e) => set("playingHandicap", num(e.target.value))} />
               </label>
             )}
@@ -411,10 +422,12 @@ export default function RoundEditor(props: {
             <summary className="small muted">Meer: qualifying, PCC, notitie</summary>
             <div className="grid grid-2" style={{ marginTop: 8 }}>
               <label className="row">
-                <input type="checkbox" checked={draft.qualifying ?? true} onChange={(e) => set("qualifying", e.target.checked)} /> Qualifying (telt voor WHS)
+                <input type="checkbox" checked={draft.qualifying ?? true} onChange={(e) => set("qualifying", e.target.checked)} /> <Term k="qualifying">Qualifying (telt voor WHS)</Term>
               </label>
               <label className="field">
-                <span>PCC</span>
+                <span>
+                  <Term k="pcc">PCC</Term>
+                </span>
                 <input inputMode="numeric" value={draft.pcc ?? 0} onChange={(e) => set("pcc", Number(e.target.value) || 0)} />
               </label>
             </div>
@@ -470,7 +483,9 @@ export default function RoundEditor(props: {
                     </select>
                   </label>
                   <label className={f("si")}>
-                    <span>SI</span>
+                    <span>
+                      <Term k="si">SI</Term>
+                    </span>
                     <input inputMode="numeric" value={h.si} onChange={(e) => setHole(i, { si: Number(e.target.value) || 0 })} />
                   </label>
                   <label className={f("length")}>
@@ -483,7 +498,9 @@ export default function RoundEditor(props: {
                   <Stepper label="Putts" className={f("putts")} value={h.putts ?? null} onChange={(v) => setHole(i, { putts: v })} min={0} start={2} />
                   {mode === "import" ? (
                     <label className={f("points")}>
-                      <span>Punten kaart</span>
+                      <span>
+                        <Term text="De stablefordpunten zoals ze op de kaart staan. Alleen ter controle: de app rekent de punten zelf uit.">Punten kaart</Term>
+                      </span>
                       <input inputMode="numeric" value={h.points ?? ""} onChange={(e) => setHole(i, { points: num(e.target.value) })} />
                     </label>
                   ) : (
@@ -514,7 +531,7 @@ export default function RoundEditor(props: {
                         setHole(i, { gir: e.target.checked });
                       }}
                     />
-                    GIR
+                    <Term k="girPct">GIR</Term>
                   </label>
                   <Stepper label="Straf" className={f("penalties")} value={h.penalties ?? 0} onChange={(v) => setHole(i, { penalties: v ?? 0 })} min={0} start={0} />
                   <Stepper label="Bunker" className={f("bunker")} value={h.bunker ?? 0} onChange={(v) => setHole(i, { bunker: v ?? 0 })} min={0} start={0} />

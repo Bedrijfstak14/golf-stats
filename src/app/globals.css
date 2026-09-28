@@ -1171,3 +1171,261 @@ details summary {
   cursor: pointer;
   min-height: 32px;
 }
+
+/* Filterbalk (mobiel eerst) */
+.filterbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: opacity 0.15s;
+}
+.filterbar.is-pending {
+  opacity: 0.6;
+}
+.filterbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.filter-toggle {
+  gap: 6px;
+}
+.filter-toggle.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.filter-toggle .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.filter-seg button {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.chip.removable {
+  border: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--accent-soft);
+  padding: 6px 10px;
+  min-height: 32px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chip.removable span {
+  margin-left: 4px;
+  color: var(--muted);
+}
+.chip-link {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+.filter-panel {
+  display: grid;
+  gap: 0;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.filter-panel .field {
+  margin: 10px 0 0;
+}
+.filter-panel .btn {
+  margin-top: 12px;
+}
+@media (min-width: 760px) {
+  .filter-panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 12px;
+  }
+  .filter-panel .btn {
+    grid-column: 1 / -1;
+    justify-self: end;
+    width: auto;
+  }
+}
+/* iOS zoomt in op invoervelden kleiner dan 16px */
+@media (max-width: 759px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Mobiele verfijningen */
+.grid > * {
+  min-width: 0;
+}
+.seg a,
+.seg button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.table-wrap > .seg {
+  max-width: none;
+}
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.round-item {
+  align-items: flex-start;
+}
+.round-item-main {
+  min-width: 0;
+  flex: 1;
+}
+.round-item-main strong {
+  display: block;
+}
+.round-item-score {
+  flex-shrink: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+.round-item-score strong {
+  font-size: 1.2rem;
+}
+
+/* Inklapbare secties */
+.section {
+  padding: 0;
+}
+.section > summary {
+  list-style: none;
+}
+.section > summary::-webkit-details-marker {
+  display: none;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  min-height: 52px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.section-head h2 {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+}
+.section-aside {
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.section-head .chevron {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: transform 0.18s ease;
+}
+.section:not([open]) .chevron {
+  transform: rotate(-90deg);
+}
+.section-body {
+  padding: 0 16px 16px;
+}
+.section-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-head .chevron {
+    transition: none;
+  }
+}
+.diff-row.best {
+  background: var(--accent-soft);
+  border-radius: 10px;
+}
+.diff-row .item {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.record-row {
+  padding: 12px 0;
+}
+
+/* Uitleg-icoon (Tip) */
+.term {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -4px 0;
+  vertical-align: middle;
+  color: var(--muted);
+  cursor: help;
+  border-radius: 50%;
+  flex: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tip:hover,
+.tip[aria-expanded="true"] {
+  color: var(--accent);
+}
+.tip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.tip-pop {
+  position: fixed;
+  z-index: 1000;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: default;
+}
+.scorecard td:first-child .term {
+  white-space: nowrap;
+}
