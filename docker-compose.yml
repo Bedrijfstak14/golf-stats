@@ -14,6 +14,11 @@ services:
       DATABASE_URL: postgres://golf:${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}@db:5432/golf
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      # Harde limieten op Gemini-aanroepen (kosten); leeg = standaard uit src/lib/aiBudget.ts
+      GEMINI_MAX_PER_DAY: ${GEMINI_MAX_PER_DAY:-}
+      GEMINI_MAX_PER_MONTH: ${GEMINI_MAX_PER_MONTH:-}
+      GEMINI_MAX_PER_USER_DAY: ${GEMINI_MAX_PER_USER_DAY:-}
+      GEMINI_MAX_PER_IMPORT: ${GEMINI_MAX_PER_IMPORT:-}
       APP_URL: ${APP_URL:-http://localhost:3470}
     volumes:
       - uploads:/data/uploads

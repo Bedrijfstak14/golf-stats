@@ -55,6 +55,8 @@ export async function flushQueue() {
     for (const item of items) {
       try {
         const res = await fetch(item.url, { method: item.method, headers: { "content-type": "application/json" }, body: item.body });
+        // Te veel verzoeken of niet (meer) ingelogd: bewaren en later opnieuw proberen
+        if (res.status === 429 || res.status === 401) break;
         if (res.ok || (res.status >= 400 && res.status < 500)) await tx("readwrite", (s) => s.delete(item.id!));
       } catch {
         break; // nog steeds offline

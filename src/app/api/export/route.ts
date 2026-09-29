@@ -4,6 +4,7 @@ import { bagClubs, imports } from "@/db/schema";
 import { apiError, apiUser } from "@/lib/auth";
 import { loadRounds } from "@/lib/rounds";
 import { toCsv } from "@/lib/csv";
+import { enforce } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   try {
     const user = await apiUser();
+    enforce("export", user.id);
     const format = new URL(req.url).searchParams.get("format") === "csv" ? "csv" : "json";
     const rounds = (await loadRounds([user.id], {}, true)).reverse();
     const stamp = new Date().toISOString().slice(0, 10);

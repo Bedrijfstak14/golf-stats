@@ -237,6 +237,26 @@ export const imports = pgTable("imports", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * Elke Gemini-aanroep, vóóraf vastgelegd (ook mislukte), zodat het AI-budget
+ * (src/lib/aiBudget.ts) ook na een herstart klopt.
+ */
+export const aiCalls = pgTable(
+  "ai_calls",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    importId: integer("import_id").references(() => imports.id, { onDelete: "set null" }),
+    model: text("model").notNull(),
+    /** null = bezig, true = gelukt, false = fout */
+    ok: boolean("ok"),
+    promptTokens: integer("prompt_tokens"),
+    outputTokens: integer("output_tokens"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ai_calls_created_idx").on(t.createdAt), index("ai_calls_user_idx").on(t.userId, t.createdAt)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Round = typeof rounds.$inferSelect;
 export type HoleScore = typeof holeScores.$inferSelect;

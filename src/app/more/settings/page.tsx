@@ -5,10 +5,12 @@ import { num } from "@/db";
 import ActionForm from "@/components/ActionForm";
 import { Term } from "@/components/Tip";
 import { BASELINES } from "@/lib/golf/strokesGained";
+import { aiUsageSummary } from "@/lib/aiBudget";
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ imported?: string; error?: string; recalc?: string }> }) {
   const user = await requireUser();
   const sp = await searchParams;
+  const ai = user.role === "owner" ? await aiUsageSummary() : null;
   const dec = (v: string | null) => (num(v) == null ? "" : String(num(v)).replace(".", ","));
   return (
     <>
@@ -105,7 +107,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <h2>
             <Term k="recalc">Handicap herberekenen</Term>
           </h2>
-          {sp.recalc && <div className="alert ok">Handicap en punten van alle rondes zijn opnieuw berekend.</div>}
+          {sp.recalc === "1" && <div className="alert ok">Handicap en punten van alle rondes zijn opnieuw berekend.</div>}
+          {sp.recalc === "wait" && <div className="alert yellow">Je hebt net al een paar keer herberekend. Probeer het over een paar minuten opnieuw.</div>}
           <p className="small muted">
             Gebeurt normaal automatisch. Gebruik dit na een correctie buiten de app om, bijvoorbeeld van rating of slope.
           </p>
@@ -113,6 +116,46 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <input type="hidden" name="back" value="/more/settings" />
             <button className="btn">Alles herberekenen</button>
           </form>
+        </div>
+      )}
+
+      {ai && (
+        <div className="card" id="ai">
+          <h2>
+            <Term text="Elke uitlezing van een screenshot of foto is een betaalde Gemini-aanroep (soms twee, als de controles een herkansing nodig vinden). Boven deze limieten weigert de app nieuwe uitlezingen; handmatig invoeren blijft werken. Aan te passen met GEMINI_MAX_PER_DAY, GEMINI_MAX_PER_MONTH, GEMINI_MAX_PER_USER_DAY en GEMINI_MAX_PER_IMPORT in .env.">
+              AI-verbruik (Gemini)
+            </Term>
+          </h2>
+          <table className="t">
+            <tbody>
+              <tr>
+                <td>Afgelopen 24 uur</td>
+                <td className="num">
+                  {ai.dayAll} / {ai.limits.perDay}
+                </td>
+              </tr>
+              <tr>
+                <td>Afgelopen 30 dagen</td>
+                <td className="num">
+                  {ai.monthAll} / {ai.limits.perMonth}
+                </td>
+              </tr>
+              <tr>
+                <td>Per speler per 24 uur</td>
+                <td className="num">max {ai.limits.perUserDay}</td>
+              </tr>
+              <tr>
+                <td>Per afbeelding</td>
+                <td className="num">max {ai.limits.perImport}</td>
+              </tr>
+              <tr>
+                <td>Tokens 30 dagen (invoer / uitvoer)</td>
+                <td className="num">
+                  {ai.promptTokens.toLocaleString("nl-NL")} / {ai.outputTokens.toLocaleString("nl-NL")}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       )}
 

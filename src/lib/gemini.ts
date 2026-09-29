@@ -120,6 +120,8 @@ export interface GeminiImage {
 
 export class GeminiError extends Error {}
 
+export const geminiModel = () => process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
 /**
  * @param feedback optioneel: problemen uit de controles van een eerdere poging, plus die uitvoer,
  *                 zodat de AI gericht opnieuw kan kijken.
@@ -127,10 +129,10 @@ export class GeminiError extends Error {}
 export async function readScorecard(
   images: GeminiImage[],
   feedback?: { problems: string[]; previous: unknown },
-): Promise<{ card: AiCard; raw: unknown }> {
+): Promise<{ card: AiCard; raw: unknown; usage: { promptTokens?: number; outputTokens?: number } }> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new GeminiError("GEMINI_API_KEY ontbreekt op de server");
-  const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const model = geminiModel();
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": key },
@@ -184,5 +186,6 @@ export async function readScorecard(
   card.players ??= [];
   card.holes ??= [];
   if (!card.players.length) card.players.push({ name: null, playingHandicap: null, handicapIndex: null, scores: [], totals: null });
-  return { card, raw };
+  const meta = (raw as { usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number } })?.usageMetadata;
+  return { card, raw, usage: { promptTokens: meta?.promptTokenCount, outputTokens: meta?.candidatesTokenCount } };
 }

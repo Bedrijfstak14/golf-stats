@@ -1,5 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { and, count, eq, gt, isNull, or, type SQL } from "drizzle-orm";
 import { db } from "@/db";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/auth";
 import { validateCourse } from "@/lib/courses";
 import { recalcAllHandicaps, recalcHandicaps } from "@/lib/rounds";
+import { clientIp, limiter, LIMITS, waitText, type LimitName } from "@/lib/rateLimit";
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -25,12 +27,30 @@ const optNum = (f: FormData, k: string) => {
   return v === "" ? null : Number(v);
 };
 
+const tooMany = (sec: number): FormState => ({ error: `Te veel pogingen. Probeer het over ${waitText(sec)} opnieuw.` });
+
+/** Telt een poging per IP; geeft een foutmelding terug als de limiet op is. */
+async function limitByIp(name: LimitName): Promise<FormState | null> {
+  const r = limiter.hit(`${name}:${clientIp(await headers())}`, LIMITS[name]);
+  return r.ok ? null : tooMany(r.retryAfter);
+}
+
 // ---------- Authenticatie ----------
 
 export async function login(_: FormState, f: FormData): Promise<FormState> {
   const email = str(f, "email").toLowerCase();
+  // Per account alleen mislukte pogingen: zo helpt wisselen van IP niet bij het raden van een wachtwoord
+  const failKey = `loginFail:${email}`;
+  const wait = limiter.blocked(failKey, LIMITS.loginFail);
+  if (wait) return tooMany(wait);
+  const ipLimited = await limitByIp("loginIp");
+  if (ipLimited) return ipLimited;
   const [u] = await db.select().from(users).where(eq(users.email, email));
-  if (!u || !(await verifyPassword(str(f, "password"), u.passwordHash))) return { error: "Onjuist e-mailadres of wachtwoord" };
+  if (!u || !(await verifyPassword(str(f, "password"), u.passwordHash))) {
+    limiter.hit(failKey, LIMITS.loginFail);
+    return { error: "Onjuist e-mailadres of wachtwoord" };
+  }
+  limiter.reset(failKey);
   await createSession(u.id);
   redirect("/");
 }
@@ -42,6 +62,8 @@ export async function logout() {
 
 /** Eerste installatie: alleen mogelijk zolang er nog geen gebruikers zijn. */
 export async function setupOwner(_: FormState, f: FormData): Promise<FormState> {
+  const limited = await limitByIp("signup");
+  if (limited) return limited;
   const [{ n }] = await db.select({ n: count() }).from(users);
   if (n > 0) return { error: "De eigenaar is al aangemaakt" };
   const pw = str(f, "password");
@@ -62,6 +84,8 @@ export async function setupOwner(_: FormState, f: FormData): Promise<FormState> 
 }
 
 export async function acceptInvite(_: FormState, f: FormData): Promise<FormState> {
+  const limited = await limitByIp("signup");
+  if (limited) return limited;
   const token = str(f, "token");
   const [inv] = await db
     .select()
@@ -89,6 +113,8 @@ export async function acceptInvite(_: FormState, f: FormData): Promise<FormState
 
 export async function createInvite(_: FormState, f: FormData): Promise<FormState> {
   const owner = await requireOwner();
+  const r = limiter.hit(`invite:${owner.id}`, LIMITS.invite);
+  if (!r.ok) return tooMany(r.retryAfter);
   const email = str(f, "email").toLowerCase();
   if (!email.includes("@")) return { error: "Vul een geldig e-mailadres in" };
   const role = ["player", "viewer"].includes(str(f, "role")) ? str(f, "role") : "player";
