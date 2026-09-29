@@ -7,3 +7,6 @@ next-env.d.ts
 .env.local
 data/
 backups/
+
+# Ontwerpdocument blijft lokaal
+*.pdf
