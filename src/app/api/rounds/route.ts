@@ -3,12 +3,14 @@ import { apiError, apiUser, canWrite, HttpError } from "@/lib/auth";
 import { saveRound, type CourseAction } from "@/lib/rounds";
 import { runChecks } from "@/lib/golf/checks";
 import type { RoundDraft } from "@/lib/golf/types";
+import { enforce } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     const user = await apiUser();
+    enforce("write", user.id);
     if (!canWrite(user)) throw new HttpError(403, "Alleen lezen");
     const body = (await req.json()) as { draft: RoundDraft; importId?: number; courseAction?: CourseAction };
     const d = body.draft;

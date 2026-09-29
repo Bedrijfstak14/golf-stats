@@ -56,6 +56,7 @@ Local Node is 18; the Docker image uses Node 22. TypeScript is pinned to 5 and V
 
 - **Shared server:** another project's Caddy already holds 80/443. The app binds `${APP_BIND:-0.0.0.0}:${APP_PORT:-3470}` and is published via a Cloudflare tunnel at `APP_URL`. The bundled Caddy sits behind the optional `proxy` compose profile.
 - **Build-time `APP_URL`:** it is passed as the build arg `ALLOWED_ORIGINS` for server actions. After changing it, run `docker compose up -d --build`.
+- **Cost and abuse limits:** every Gemini call goes through `reserveAiCall` in `src/lib/aiBudget.ts`, which records a row in `ai_calls` *before* the call under a Postgres advisory lock and refuses with 429 above the limits (24 h and 30 days app-wide, 24 h per player, per import; `GEMINI_MAX_*` in `.env`). Don't call `readScorecard` without it. Other limits (login per IP and per e-mail address, uploads, writes, recalc and so on) are in-memory in `src/lib/rateLimit.ts` (`LIMITS`), which is fine because there is one container; they reset on restart. The client IP comes from `CF-Connecting-IP`.
 - **Gemini model:** `GEMINI_MODEL` defaults to `gemini-3.8-flash` (`gemini-2.5-flash` was retired for new users). The API key is server-only.
 - **`.env`:** a `$` in a value is interpolated by Compose, so avoid it in passwords.
 - **Icons:** regenerate with `npm i --no-save sharp && node scripts/generate-icons.mjs`.

@@ -208,6 +208,16 @@ a.card {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+/* Hoofdcijfer: op mobiel over de volle breedte, de rest in twee kolommen eronder */
+@media (max-width: 759px) {
+  .kpi-hero {
+    grid-column: 1 / -1;
+  }
+  .kpi-hero .value {
+    font-size: 2.25rem;
+    line-height: 1.1;
+  }
+}
 .trend-better {
   color: var(--accent);
 }

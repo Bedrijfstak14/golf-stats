@@ -6,12 +6,14 @@ import { apiError, apiUser, HttpError } from "@/lib/auth";
 import { recalcHandicaps, saveRound, type CourseAction } from "@/lib/rounds";
 import { runChecks } from "@/lib/golf/checks";
 import type { RoundDraft } from "@/lib/golf/types";
+import { enforce } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await apiUser();
+    enforce("write", user.id);
     const id = Number((await params).id);
     const body = (await req.json()) as { draft: RoundDraft; courseAction?: CourseAction };
     const hard = runChecks({ ...body.draft, totals: undefined, lowConfidence: [] }).filter((i) => i.code === "plausibility");
@@ -27,6 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await apiUser();
+    enforce("write", user.id);
     const id = Number((await params).id);
     await db.delete(rounds).where(and(eq(rounds.id, id), eq(rounds.userId, user.id)));
     await recalcHandicaps(user.id);

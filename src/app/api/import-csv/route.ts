@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser, canWrite } from "@/lib/auth";
 import { csvToDrafts, parseCsv } from "@/lib/csv";
 import { saveRound } from "@/lib/rounds";
+import { limiter, LIMITS, waitText } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,8 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.redirect(new URL("/login", base), 303);
   if (!canWrite(user)) return back("error=Alleen+lezen");
+  const r = limiter.hit(`csv:${user.id}`, LIMITS.csv);
+  if (!r.ok) return back(`error=${encodeURIComponent(`Te veel imports. Probeer het over ${waitText(r.retryAfter)} opnieuw.`)}`);
   try {
     const form = await req.formData();
     const file = form.get("file") as File | null;

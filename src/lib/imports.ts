@@ -5,15 +5,19 @@ import { randomBytes } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { imports, type User } from "@/db/schema";
-import { readScorecard } from "@/lib/gemini";
+import { geminiModel, readScorecard } from "@/lib/gemini";
+import { assertAiBudget, finishAiCall, reserveAiCall } from "@/lib/aiBudget";
 import { listCourseOptions, matchCourse } from "@/lib/courses";
 import { aiCardToDraft, guessPlayer } from "@/lib/golf/aiDraft";
 import { runChecks, type CheckIssue } from "@/lib/golf/checks";
 import type { RoundDraft } from "@/lib/golf/types";
 import { indexOnDate, loadRounds } from "@/lib/rounds";
+import { enforce } from "@/lib/rateLimit";
+import { HttpError } from "@/lib/auth";
 
 export const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? "./data/uploads");
 const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_IMAGES = 6;
 const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/heic": "heic", "image/heif": "heif" };
 
 export function mimeFor(file: string) {
@@ -25,6 +29,7 @@ export function mimeFor(file: string) {
 export async function createImport(user: User, files: File[]): Promise<number> {
   const images = files.filter((f) => f && typeof f === "object" && f.size > 0);
   if (!images.length) throw new Error("Geen afbeelding ontvangen");
+  if (images.length > MAX_IMAGES) throw new HttpError(400, `Maximaal ${MAX_IMAGES} afbeeldingen per ronde`);
   const dir = path.join(UPLOAD_DIR, `u${user.id}`);
   await mkdir(dir, { recursive: true });
   const saved: string[] = [];
@@ -65,6 +70,9 @@ export async function processImport(user: User, id: number, force = false) {
   if (!imp) throw new Error("Import niet gevonden");
   if (imp.status === "saved") return imp;
   if (imp.status === "parsed" && !force) return imp;
+  // Vóór de try: bij een limiet blijft de import staan zoals hij was (niet "failed") en krijgt de client 429
+  enforce("aiBurst", user.id);
+  await assertAiBudget(user.id, imp.id);
 
   try {
     const imgs = await Promise.all(
@@ -73,7 +81,13 @@ export async function processImport(user: User, id: number, force = false) {
     const options = await listCourseOptions();
 
     const attempt = async (feedback?: { problems: string[]; previous: unknown }) => {
-      const { card, raw } = await readScorecard(imgs, feedback);
+      // Elke aanroep telt tegen het AI-budget; is dat op, dan faalt deze poging (bij de herkansing blijft de eerste staan)
+      const callId = await reserveAiCall(user.id, imp.id, geminiModel());
+      const { card, raw, usage } = await readScorecard(imgs, feedback).catch(async (e) => {
+        await finishAiCall(callId, false);
+        throw e;
+      });
+      await finishAiCall(callId, true, usage);
       const draft = aiCardToDraft(card, guessPlayer(card, user.name), card.imageKind === "photo" ? "ai_photo" : "ai_screenshot");
       const match = await matchCourse(draft, options);
       if (match) {

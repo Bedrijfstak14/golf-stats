@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { apiError, apiUser, HttpError } from "@/lib/auth";
 import { saveShots } from "@/lib/rounds";
 import type { DraftShot, Lie } from "@/lib/golf/types";
+import { enforce } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,7 @@ const LIES: Lie[] = ["tee", "fairway", "rough", "bunker", "recovery", "green", "
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await apiUser();
+    enforce("write", user.id);
     const id = Number((await params).id);
     const body = (await req.json()) as { hole: number; shots: DraftShot[] };
     for (const s of body.shots ?? []) {

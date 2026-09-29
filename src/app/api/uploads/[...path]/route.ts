@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { apiError, apiUser, HttpError } from "@/lib/auth";
 import { mimeFor, UPLOAD_DIR } from "@/lib/imports";
+import { enforce } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -9,6 +10,7 @@ export const runtime = "nodejs";
 export async function GET(_: Request, { params }: { params: Promise<{ path: string[] }> }) {
   try {
     const user = await apiUser();
+    enforce("read", user.id);
     const parts = (await params).path;
     const rel = parts.join("/");
     const full = path.resolve(UPLOAD_DIR, rel);

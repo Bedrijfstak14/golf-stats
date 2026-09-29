@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { and, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users, type User } from "@/db/schema";
+import { RateLimitError } from "@/lib/rateLimit";
 
 export const SESSION_COOKIE = "gs_session";
 const SESSION_DAYS = 60;
@@ -90,6 +91,8 @@ export async function apiUser(): Promise<User> {
 }
 
 export function apiError(e: unknown) {
+  if (e instanceof RateLimitError)
+    return Response.json({ error: e.message, retryAfter: e.retryAfter }, { status: 429, headers: { "Retry-After": String(e.retryAfter) } });
   if (e instanceof HttpError) return Response.json({ error: e.message }, { status: e.status });
   console.error(e);
   return Response.json({ error: e instanceof Error ? e.message : "Onbekende fout" }, { status: 500 });

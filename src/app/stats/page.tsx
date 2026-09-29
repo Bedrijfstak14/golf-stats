@@ -96,18 +96,21 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <div className="page-head">
-        <h1>Statistieken</h1>
+        <h1>{tab === "handicap" ? "Handicap" : "Statistieken"}</h1>
       </div>
 
-      <div className="table-wrap" style={{ marginBottom: 12 }}>
-        <div className="seg">
-          {TABS.map(([k, label]) => (
-            <Link key={k} href={q({ tab: k })} className={tab === k ? "on" : ""}>
-              {label}
-            </Link>
-          ))}
+      {/* Handicap heeft een eigen tab in de onderbalk; daar geen tweede tabrij */}
+      {tab !== "handicap" && (
+        <div className="table-wrap" style={{ marginBottom: 12 }}>
+          <div className="seg">
+            {TABS.filter(([k]) => k !== "handicap").map(([k, label]) => (
+              <Link key={k} href={q({ tab: k })} className={tab === k ? "on" : ""}>
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {tab !== "handicap" && (
         <FilterBar
@@ -547,7 +550,7 @@ async function Handicap({ all, user, sp, q }: { all: LoadedRound[]; user: Awaite
   return (
     <div className="stack">
       <div className="grid grid-2 grid-md-3">
-        <div className="kpi">
+        <div className="kpi kpi-hero">
           <div className="label">
             <Term k="index">Index (indicatief, WHS)</Term>
           </div>
@@ -568,7 +571,8 @@ async function Handicap({ all, user, sp, q }: { all: LoadedRound[]; user: Awaite
         </div>
       </div>
 
-      {sp.recalc && <div className="alert ok">Index, course en playing handicap en punten van alle rondes zijn opnieuw berekend.</div>}
+      {sp.recalc === "1" && <div className="alert ok">Index, course en playing handicap en punten van alle rondes zijn opnieuw berekend.</div>}
+          {sp.recalc === "wait" && <div className="alert yellow">Je hebt net al een paar keer herberekend. Probeer het over een paar minuten opnieuw.</div>}
       {user.role !== "viewer" && (
         <form action="/api/admin/recalc" method="post" className="row">
           <input type="hidden" name="back" value="/stats?tab=handicap" />
