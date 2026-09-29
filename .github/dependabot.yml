@@ -29,6 +29,34 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # Majors bewust handmatig: TypeScript 5 en Vitest 3 zijn vastgezet voor lokale Node 18,
+      # @types/node volgt de Node-versie van het image, Next 16 vraagt een migratie
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+
+  # Versies (SHA's) van de GitHub Actions in .github/workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      actions:
+        patterns: ["*"]
 
   # Base-image in de Dockerfile (node)
   - package-ecosystem: "docker"

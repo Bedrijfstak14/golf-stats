@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f6f4a"/>
+      <stop offset="1" stop-color="#0c3a28"/>
+    </linearGradient>
+    <linearGradient id="ic" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2d9163"/>
+      <stop offset="1" stop-color="#13503a"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d9163" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#2d9163" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <!-- fairway-lijnen op de achtergrond -->
+  <g fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="60">
+    <path d="M-100 700 C 300 420 600 760 1400 380"/>
+    <path d="M-100 560 C 350 300 700 620 1400 220"/>
+  </g>
+
+  <!-- icoon -->
+  <g transform="translate(100 112) scale(0.25)">
+    <rect width="512" height="512" rx="112" fill="url(#ic)" stroke="#ffffff" stroke-opacity=".25" stroke-width="8"/>
+    <ellipse cx="256" cy="392" rx="178" ry="58" fill="#5cbf88"/>
+    <ellipse cx="256" cy="384" rx="150" ry="40" fill="#72cf98"/>
+    <ellipse cx="226" cy="392" rx="28" ry="10" fill="#0d3524"/>
+    <line x1="226" y1="390" x2="226" y2="104" stroke="#ffffff" stroke-width="20" stroke-linecap="round"/>
+    <path d="M234 100 C290 86 322 132 388 116 L356 164 L388 212 C322 228 290 182 234 196 Z" fill="#f2c94c"/>
+    <path d="M234 148 C290 134 322 180 372 168 L388 212 C322 228 290 182 234 196 Z" fill="#e0ad2b"/>
+    <circle cx="322" cy="372" r="24" fill="#ffffff"/>
+  </g>
+
+  <g font-family="Liberation Sans, DejaVu Sans, sans-serif">
+    <text x="100" y="330" font-size="92" font-weight="700" fill="#ffffff" letter-spacing="-2">Golf Stats</text>
+    <text x="102" y="390" font-size="34" fill="#dcefe4">Screenshot erin, statistieken eruit.</text>
+
+    <!-- chips -->
+    <g font-size="22" font-weight="700" fill="#0c3a28">
+      <rect x="100" y="436" width="148" height="44" rx="22" fill="#f2c94c"/>
+      <text x="174" y="465" text-anchor="middle">AI-import</text>
+      <rect x="262" y="436" width="186" height="44" rx="22" fill="#dcefe4"/>
+      <text x="355" y="465" text-anchor="middle">WHS-handicap</text>
+      <rect x="462" y="436" width="148" height="44" rx="22" fill="#dcefe4"/>
+      <text x="536" y="465" text-anchor="middle">Stableford</text>
+      <rect x="100" y="494" width="188" height="44" rx="22" fill="#dcefe4"/>
+      <text x="194" y="523" text-anchor="middle">Strokes gained</text>
+      <rect x="302" y="494" width="96" height="44" rx="22" fill="#dcefe4"/>
+      <text x="350" y="523" text-anchor="middle">PWA</text>
+    </g>
+
+    <!-- mini-kaart rechts -->
+    <g transform="translate(730 112)">
+      <rect width="450" height="416" rx="28" fill="#f4f3ee"/>
+      <text x="32" y="56" font-size="20" font-weight="700" fill="#6b6f66" letter-spacing="1">HANDICAPINDEX</text>
+      <text x="32" y="118" font-size="64" font-weight="700" fill="#1c1f1a">18,4</text>
+      <g transform="translate(170 104)">
+        <rect width="96" height="34" rx="17" fill="#dcefe4"/>
+        <text x="48" y="24" font-size="20" font-weight="700" fill="#1f6f4a" text-anchor="middle">▼ 2,1</text>
+      </g>
+      <!-- trendlijn -->
+      <path d="M32 168 L92 178 L152 172 L212 198 L272 192 L332 216 L418 232 L418 262 L32 262 Z" fill="url(#area)"/>
+      <path d="M32 168 L92 178 L152 172 L212 198 L272 192 L332 216 L418 232" fill="none" stroke="#1f6f4a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="418" cy="232" r="8" fill="#1f6f4a" stroke="#f4f3ee" stroke-width="4"/>
+      <line x1="32" y1="286" x2="418" y2="286" stroke="#deddd4" stroke-width="2"/>
+      <!-- scores per hole -->
+      <g font-size="22" font-weight="700" text-anchor="middle">
+        <g transform="translate(0 344)">
+          <circle cx="52" cy="0" r="22" fill="none" stroke="#d0453a" stroke-width="3"/><text x="52" y="8" fill="#d0453a">3</text>
+          <text x="104" y="8" fill="#1c1f1a">4</text>
+          <rect x="134" y="-22" width="44" height="44" fill="none" stroke="#4a7fc1" stroke-width="3"/><text x="156" y="8" fill="#4a7fc1">5</text>
+          <text x="208" y="8" fill="#1c1f1a">4</text>
+          <circle cx="260" cy="0" r="22" fill="none" stroke="#d0453a" stroke-width="3"/><text x="260" y="8" fill="#d0453a">2</text>
+          <text x="312" y="8" fill="#1c1f1a">5</text>
+          <text x="370" y="8" fill="#1f6f4a" font-size="26">38 pt</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
