@@ -14,6 +14,7 @@ Een persoonlijke, mobile-first golf-app die je Hole19-screenshot of scorekaartfo
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
 ![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-4169e1?logo=postgresql&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-installeerbaar-5a0fc8?logo=pwa)
+[![Licentie: MIT](https://img.shields.io/badge/licentie-MIT-f2c94c)](LICENSE)
 
 </div>
 
@@ -102,3 +103,7 @@ Stack: **Next.js 15** (App Router) · **React 19** · **TypeScript** · **Drizzl
 ## Beveiliging
 
 Heb je een kwetsbaarheid gevonden? Meld die privé via [SECURITY.md](SECURITY.md) en niet via een openbare issue.
+
+## Licentie
+
+[MIT](LICENSE): vrij te gebruiken, aan te passen en te delen, zolang de licentie en de copyrightvermelding erbij blijven.
