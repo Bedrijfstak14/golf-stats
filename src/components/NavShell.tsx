@@ -24,12 +24,15 @@ export default function NavShell({ name, role, children }: { name: string; role:
   const initial = (name.trim().charAt(0) || "?").toUpperCase();
 
   return (
-    <>
+    <div className="shell">
       <AppBar initial={initial} menuOpen={drawer} onMenu={() => setDrawer(true)} />
-      <main className="app">{children}</main>
+      {/* Alleen dit deel scrollt: zo kan de onderbalk in een iOS-PWA niet meeschuiven. */}
+      <div className="shell-scroll">
+        <main className="app">{children}</main>
+      </div>
       <BottomNav canAdd={canAdd} addOpen={sheet} onAdd={() => setSheet(true)} />
       <Drawer open={drawer} onClose={closeDrawer} name={name} role={role} />
       {canAdd && <AddSheet open={sheet} onClose={closeSheet} />}
-    </>
+    </div>
   );
 }

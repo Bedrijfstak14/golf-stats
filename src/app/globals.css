@@ -63,6 +63,7 @@
 html,
 body {
   margin: 0;
+  overscroll-behavior: none;
   background: var(--bg);
   color: var(--text);
   font-family:
@@ -101,7 +102,26 @@ p {
 .app {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 8px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));
+  padding: 8px 16px 24px;
+}
+/*
+ * App-schil: vast frame met bovenbalk, scrollgebied en onderbalk. Het document zelf
+ * scrollt niet, anders schuift een fixed onderbalk in een iOS-PWA mee omhoog bij
+ * (over)scrollen en blijft hij midden in beeld hangen.
+ */
+.shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.shell-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .page-head {
   display: flex;
@@ -587,7 +607,7 @@ table.t th {
   }
   .review-layout .image-pane {
     position: sticky;
-    top: calc(var(--bar-h) + env(safe-area-inset-top) + 8px);
+    top: 8px;
   }
 }
 .image-pane img {
@@ -598,8 +618,8 @@ table.t th {
 
 /* Bovenbalk */
 .app-bar {
-  position: sticky;
-  top: 0;
+  position: relative;
+  flex: 0 0 auto;
   z-index: 20;
   background: var(--bg);
   padding-top: env(safe-area-inset-top);
@@ -927,10 +947,8 @@ table.t th {
 
 /* Onderbalk */
 .bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  flex: 0 0 auto;
   height: calc(var(--nav-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
